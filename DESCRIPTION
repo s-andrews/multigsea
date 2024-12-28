@@ -1,0 +1,10 @@
+Package: multigsea
+Title: Gene Set Analysis Across Multiple Datasets
+Version: 0.0.0.9000
+Authors@R: 
+    person("Simon", "Andrews", , "simon.andrews@babraham.ac.uk", role = c("aut", "cre"))
+Description: This package provides a series of functions to calculate, summarise, analyse and visualise the results of Gene Set analysis across multiple datasets.  It is intended to be used to help with the interpretation of the results of more complex experimental designs.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
