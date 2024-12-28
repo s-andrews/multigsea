@@ -1,0 +1,34 @@
+#' [Internal] Helper function to run a single GSEA search
+#'
+#' @param data Tibble with Genes and columns of quantitative GSEA values
+#' @param column The column of quantitative values to use
+#' @param org The species to use for the analysis
+#' @param minGSSize Minimum gene set size
+#' @param maxGSSize Maximum gene set size
+#'
+#' @return
+
+run_single_gsea <- function(data,column, org, minGSSize, maxGSSize) {
+  data |>
+    dplyr::select(Genes,{{ column }})  -> sorted_data
+
+  sorted_data |>
+    dplyr::pull( {{ column }}) -> gsea_values
+
+  names(gsea_values) <- sorted_data$Genes
+
+  sort(gsea_values, decreasing = TRUE) -> gsea_values
+
+  clusterProfiler::gseGO(
+    geneList = gsea_values,
+    OrgDb = {{ org }},
+    minGSSize = minGSSize,
+    maxGSSize = maxGSSize,
+    keyType = "SYMBOL",
+    pvalueCutoff = 1,
+    pAdjustMethod = "none"
+  ) -> gsea_result
+
+  return (gsea_result@result %>% dplyr::as_tibble() %>% dplyr::add_column(Condition=column))
+
+}
