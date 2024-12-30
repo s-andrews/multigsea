@@ -9,14 +9,14 @@
 #' @export
 #'
 #' @examples
-run_multi_gsea <- function(data, org=org.Hs.eg.db, minGSSize=10, maxGSSize=50) {
+run_multi_gsea <- function(data, org=org.Hs.eg.db, minGSSize=10, maxGSSize=50, ontology="BP") {
 
   colnames(data %>% dplyr::select(-Genes)) -> conditions
 
-  lapply(conditions, function(x) run_single_gsea(data, x, {{ org }}, minGSSize, maxGSSize)) -> gsea_results
+  lapply(conditions, function(x) run_single_gsea(data, x, {{ org }}, minGSSize, maxGSSize, ontology)) -> gsea_results
 
 
-  do.call(dplyr::bind_rows(gsea_results)) -> gsea_results
+  do.call(dplyr::bind_rows,gsea_results) -> gsea_results
 
   return(gsea_results)
 

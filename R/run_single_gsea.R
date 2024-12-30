@@ -8,7 +8,7 @@
 #'
 #' @return
 
-run_single_gsea <- function(data,column, org, minGSSize, maxGSSize) {
+run_single_gsea <- function(data,column, org, minGSSize, maxGSSize, ontology) {
   data |>
     dplyr::select(Genes,{{ column }})  -> sorted_data
 
@@ -21,6 +21,7 @@ run_single_gsea <- function(data,column, org, minGSSize, maxGSSize) {
 
   clusterProfiler::gseGO(
     geneList = gsea_values,
+    ont = ontology,
     OrgDb = {{ org }},
     minGSSize = minGSSize,
     maxGSSize = maxGSSize,
@@ -29,6 +30,6 @@ run_single_gsea <- function(data,column, org, minGSSize, maxGSSize) {
     pAdjustMethod = "none"
   ) -> gsea_result
 
-  return (gsea_result@result %>% dplyr::as_tibble() %>% dplyr::add_column(Condition=column))
+  return (gsea_result@result %>% dplyr::as_tibble() %>% tibble::add_column(Condition=column))
 
 }
