@@ -16,5 +16,94 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(multigsea)
+library(tidyverse)
 ```
+
+MultiGSEA provides a series of tools to calculate, visualise and analyse the Gene Set Enrichment Analysis (GSEA) results from multiple experimental results.
+
+
+# Starting Data
+
+The start point for this analysis is a tibble containing 3 or more columns.  One must be a called `Genes` and contain the gene symbols from the species you're using.  All other columns must be named after samples in your experiment and must contain the numeric values for each of the genes.  Commonly these values will be some form of difference value (shrunken log2 Fold changes for example),  but can be any suitably behaving number for GSEA anlaysis.
+
+```{r}
+system.file("multigsea_test_data.tsv", package="multigsea") -> example_data_file
+read_delim(example_data_file) -> example_data
+
+head(example_data)
+```
+
+In this example we have two samples, `Early` and `Late`.  The values in the tibble do not need to be sorted.
+
+The names in the `Gene` column must be unique.  You will get a warning if any of the values in the quantitative columns contain tied values,  but this will not prevent the analysis from running.
+
+
+# Calculating GSEA results
+
+The first step in the analysis is to calculate a full set of GSEA results.  For this you will need to specify a Bioconductor genome, and you will need to decide which branch(es) of the Gene Ontology you want to use.
+
+```{r}
+run_multi_gsea(example_data, org = org.Mm.eg.db) -> gsea_results
+
+head(gsea_results)
+```
+
+You have the full GSEA result for each GO category, for each sample in your data.
+
+# Applying Filters
+
+We don't want to look at all of the GSEA results as many of them will be uninteresting.  Instead we will filter to keep only those which are interesting in at least one of the conditions.
+
+```{r}
+filter_multi_gsea(gsea_results, nes_cutoff = 1, fdr_cutoff = 0.05) -> filtered_gsea_results
+```
+
+
+## Viewing Results
+
+You can look at the distribution of enrichment score values, and levels of significance between the datasets
+
+```{r}
+gsea_results |> 
+  ggplot(aes(x=NES, colour=Condition)) +
+  geom_density() +
+  ggtitle("Distribution of NES values between conditions")
+```
+
+Let's do the same thing after filtering
+
+```{r}
+filtered_gsea_results |> 
+  ggplot(aes(x=NES, colour=Condition)) +
+  geom_density() +
+  ggtitle("Distribution of filtered NES values between conditions")
+```
+We can also plot PHRED scores where we convert the scores with a negative NES to give a negative PHRED
+
+```{r}
+gsea_results |> 
+  ggplot(aes(x=Directional_Phred, colour=Condition)) +
+  geom_density() +
+  ggtitle("Distribution of directional PHRED scores between conditions")
+```
+
+Again, we can do the same thing with the filtered data.
+
+```{r}
+filtered_gsea_results |> 
+  ggplot(aes(x=Directional_Phred, colour=Condition)) +
+  geom_density() +
+  ggtitle("Distribution of filtered directional PHRED scores between conditions")
+```
+
+# Comparison between conditions
+
+Let's take a look at the comaprison of the metrics between the two conditions in this dataset
+
+## NES Scatterplot
+
+
+
+
+
 
