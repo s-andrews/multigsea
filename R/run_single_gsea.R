@@ -30,6 +30,12 @@ run_single_gsea <- function(data,column, org, minGSSize, maxGSSize, ontology) {
     pAdjustMethod = "none"
   ) -> gsea_result
 
-  return (gsea_result@result %>% dplyr::as_tibble() %>% tibble::add_column(Condition=column))
+  return (
+    gsea_result@result |>
+      dplyr::as_tibble() |>
+      tibble::add_column(Condition=column) |>
+      dplyr::mutate(Directional_Phred=(-10*log10(p.adjust)*if_else(NES<0,-1,1))) |>
+      dplyr::select(ID,Condition,everything())
+  )
 
 }
