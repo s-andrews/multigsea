@@ -98,12 +98,38 @@ filtered_gsea_results |>
 
 # Comparison between conditions
 
-Let's take a look at the comaprison of the metrics between the two conditions in this dataset
+Let's take a look at the comparison of the metrics between the two conditions in this dataset
 
-## NES Scatterplot
+## Directional Phred Scatterplot
 
+```{r fig.width=6, fig.height=6}
+filtered_gsea_results |> 
+  condition_gsea_scatterplot("Early","Late", metric="Directional_Phred")
+```
 
+```{r fig.width=6, fig.height=6}
+filtered_gsea_results |> 
+  condition_gsea_scatterplot("Early","Late", metric="NES")
+```
 
+# Finding categories which change between conditions
+
+Now we can further filter the results to get those which change in an interesting way between conditions
+
+```{r fig.width=6, fig.height=6}
+find_condition_differences(
+  filtered_gsea_results,
+  "Early",
+  "Late",
+  cutoff = 20,
+  metric="Directional_Phred"
+) -> early_late_gsea_differences
+
+early_late_gsea_differences |> 
+  condition_gsea_scatterplot("Early","Late", metric="Directional_Phred")
+```
+
+# Clustering the terms
 
 
 
