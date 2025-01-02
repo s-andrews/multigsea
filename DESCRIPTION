@@ -14,7 +14,8 @@ Imports:
     ggplot2,
     org.Mm.eg.db,
     readr,
-    tibble
+    tibble,
+    tidyheatmaps
 Suggests: 
     knitr,
     rmarkdown,
