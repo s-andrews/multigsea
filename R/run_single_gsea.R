@@ -6,7 +6,7 @@
 #' @param minGSSize Minimum gene set size
 #' @param maxGSSize Maximum gene set size
 #'
-#' @return
+#' @return A tibble of GSEA results
 
 run_single_gsea <- function(data,column, org, minGSSize, maxGSSize, ontology) {
   data |>
