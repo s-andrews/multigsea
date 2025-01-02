@@ -1,0 +1,27 @@
+
+
+plot_gene_list_overlap_heatmap <- function(gene_list_overlaps, minoverlap=0) {
+
+
+  gene_list_overlaps |>
+    dplyr::mutate(overlap = replace(overlap,overlap<minoverlap,0)) |>
+    dplyr::group_by(ID1) |>
+    dplyr::filter(any(overlap>0)) |>
+    dplyr::ungroup() |>
+    dplyr::group_by(ID2) |>
+    dplyr::filter(any(overlap>0)) |>
+    dplyr::ungroup() |>
+    tidy_heatmap(
+      rows=ID1,
+      columns=ID2,
+      values=overlap,
+      cluster_rows = TRUE,
+      cluster_cols=TRUE,
+      scale="none",
+      show_colnames = FALSE,
+      colors = c("white","red2")
+    ) -> plot
+
+  return(plot)
+
+}

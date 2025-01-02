@@ -141,6 +141,8 @@ early_late_gsea_differences %>%
   nrow()
 ```
 
+## Calculating the overlaps between terms
+
 So we have over 300 terms still which is too many to deal with.  Many of those terms will be highly overlapping in their gene content, so we can cluster them based on this to get a smaller subset of distinct subgroups.
 
 ```{r}
@@ -151,23 +153,16 @@ gene_overlap_matrix %>%
   head()
 ```
 
+## Plotting the overlaps
+
 We can see categories which highly overlap, we can look at this.
 
 ```{r fig.width=9, fig.height=8}
-gene_overlap_matrix %>%
-  tidy_heatmap(
-    rows=ID1,
-    columns=ID2,
-    values=overlap,
-    cluster_rows = TRUE,
-    cluster_cols=TRUE,
-    scale="none",
-    show_colnames = FALSE,
-    colors = c("white","red2"),
-    fontsize_row = 3
-  )
+plot_gene_list_overlap_heatmap(gene_overlap_matrix, minoverlap = 30)
 ```
 
 We can see groups with different levels of similarity, but that there is one big group which is highly connected.
+
+## Calling clusters
 
 
