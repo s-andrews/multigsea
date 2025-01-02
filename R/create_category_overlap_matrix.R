@@ -7,7 +7,7 @@
 #' @export
 #'
 #' @examples
-create_gene_overlap_matrix <- function(gsea_result, max_categories=250) {
+create_category_overlap_matrix <- function(gsea_result, max_categories=250) {
   extract_gsea_genes(gsea_result) -> extracted_genes
 
   extracted_genes |>

@@ -12,6 +12,7 @@ Imports:
     clusterProfiler,
     dplyr,
     ggplot2,
+    ggrepel,
     igraph,
     org.Mm.eg.db,
     readr,
