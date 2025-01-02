@@ -16,9 +16,10 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(multigsea)
-library(tidyverse)
 library(org.Mm.eg.db)
+library(tidyverse)
 library(tidyheatmaps)
+library(ggrepel)
 ```
 
 MultiGSEA provides a series of tools to calculate, visualise and analyse the Gene Set Enrichment Analysis (GSEA) results from multiple experimental results.
@@ -26,7 +27,7 @@ MultiGSEA provides a series of tools to calculate, visualise and analyse the Gen
 
 # Starting Data
 
-The start point for this analysis is a tibble containing 3 or more columns.  One must be a called `Genes` and contain the gene symbols from the species you're using.  All other columns must be named after samples in your experiment and must contain the numeric values for each of the genes.  Commonly these values will be some form of difference value (shrunken log2 Fold changes for example),  but can be any suitably behaving number for GSEA anlaysis.
+The start point for this analysis is a tibble containing 3 or more columns.  One must be a called `Genes` and contain the gene symbols from the species you're using.  All other columns must be named after samples in your experiment and must contain the numeric values for each of the genes.  Commonly these values will be some form of difference value (shrunken log2 Fold changes for example),  but can be any suitably behaving number for GSEA analysis.
 
 ```{r}
 system.file("multigsea_test_data.tsv", package="multigsea") -> example_data_file
@@ -146,9 +147,9 @@ early_late_gsea_differences %>%
 So we have over 300 terms still which is too many to deal with.  Many of those terms will be highly overlapping in their gene content, so we can cluster them based on this to get a smaller subset of distinct subgroups.
 
 ```{r}
-create_gene_overlap_matrix(early_late_gsea_differences) -> gene_overlap_matrix
+create_category_overlap_matrix(early_late_gsea_differences, max_categories = 400) -> early_late_category_overlap_matrix
 
-gene_overlap_matrix %>%
+early_late_category_overlap_matrix %>%
   arrange(desc(overlap)) %>%
   head()
 ```
@@ -158,11 +159,78 @@ gene_overlap_matrix %>%
 We can see categories which highly overlap, we can look at this.
 
 ```{r fig.width=9, fig.height=8}
-plot_gene_list_overlap_heatmap(gene_overlap_matrix, minoverlap = 30)
+plot_category_overlap_heatmap(early_late_category_overlap_matrix, minoverlap = 30)
 ```
 
 We can see groups with different levels of similarity, but that there is one big group which is highly connected.
 
 ## Calling clusters
+
+We can now build groups out of the terms
+
+```{r fig.width=8, fig.height=3}
+create_gsea_groups(early_late_category_overlap_matrix, minoverlap = 30) -> early_late_gsea_groups
+
+
+early_late_gsea_groups %>%
+  group_by(Group) %>%
+  count(name = "number_of_categories") %>%
+  group_by(number_of_categories) %>%
+  count(name="number_of_groups") %>%
+  ggplot(aes(x=number_of_categories, y=number_of_groups)) +
+  geom_point(size=4)
+```
+
+We have quite a lot of categories with just one group in it, but also a few which have many (over 100 in the largest case)
+
+## Apply groups to differences
+
+```{r}
+early_late_gsea_differences %>%
+  left_join(early_late_gsea_groups) %>%
+  select(ID,Description, Group, Condition, Directional_Phred) %>%
+  pivot_wider(
+    names_from=Condition,
+    values_from=Directional_Phred
+  ) %>%
+  arrange(desc(abs(Late-Early))) %>%
+  group_by(Group) %>%
+  mutate(Group_Size=n()) %>%
+  slice(1) %>%
+  ungroup() -> early_late_grouped_results
+
+early_late_grouped_results %>% filter(Group_Size>1)
+```
+
+## Plotting grouped results
+
+```{r fig.width=9, fig.height=8}
+early_late_grouped_results %>%
+  filter(Group_Size>1) %>%
+  ggplot(aes(x=Early, y=Late, size=Group_Size, label=Description)) +
+  geom_point() +
+  geom_abline(slope=1,intercept=c(-20,20), color="darkgrey") +
+  geom_text_repel(size=2.5, box.padding = 1) +
+  coord_cartesian(xlim=c(-100,100), ylim=c(-100,100))
+```
+
+# Plotting original data
+
+Finally let's plot out the fold changes for all of the genes in the different groups we have selected.
+
+```{r fig.width=5, fig.height=6}
+for (category in early_late_grouped_results %>% filter(Group_Size>1) %>% pull(ID)) {
+
+  plot_values_for_category(early_late_gsea_differences, example_data, category, min_value = -150, max_value = 150) -> category_heatmap
+  
+  print(category_heatmap)
+}
+
+```
+
+This plot shows only the genes which were in the leading edge subset in one of the categories so other genes from the set may be present in the data.  You should be able to see a representation of the reason that these categories changed through.
+
+
+
 
 
