@@ -37,6 +37,6 @@ devtools::install_github("s-andrews/multigsea")
 ```
 
 ## Using the package
-
+See the [MultiGSEA Vignette](https://html-preview.github.io/?url=https://github.com/s-andrews/multigsea/raw/refs/heads/main/inst/doc/multi_gsea.html) for details of how to use the package.
 
 
