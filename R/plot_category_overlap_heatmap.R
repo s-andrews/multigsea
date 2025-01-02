@@ -1,6 +1,6 @@
 
 
-plot_gene_list_overlap_heatmap <- function(gene_list_overlaps, minoverlap=0) {
+plot_category_overlap_heatmap <- function(gene_list_overlaps, minoverlap=0) {
 
 
   gene_list_overlaps |>
