@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, warning=FALSE, message=FALSE}
 library(multigsea)
 library(org.Mm.eg.db)
 library(tidyverse)
@@ -33,7 +33,7 @@ MultiGSEA provides a series of tools to calculate, visualise and analyse the Gen
 
 The start point for this analysis is a tibble containing 3 or more columns.  One must be a called `Genes` and contain the gene symbols from the species you're using.  All other columns must be named after samples in your experiment and must contain the numeric values for each of the genes.  Commonly these values will be some form of difference value (shrunken log2 Fold changes for example),  but can be any suitably behaving number for GSEA analysis.
 
-```{r}
+```{r message=FALSE}
 system.file("multigsea_test_data.tsv", package="multigsea") -> example_data_file
 read_delim(example_data_file) -> example_data
 
@@ -49,7 +49,7 @@ The names in the `Gene` column must be unique.  You will get a warning if any of
 
 The first step in the analysis is to calculate a full set of GSEA results.  For this you will need to specify a Bioconductor genome, and you will need to decide which branch(es) of the Gene Ontology you want to use.
 
-```{r}
+```{r warning=FALSE}
 run_multi_gsea(example_data, org = org.Mm.eg.db) -> gsea_results
 
 head(gsea_results)
@@ -70,7 +70,9 @@ filter_multi_gsea(gsea_results, nes_cutoff = 1, fdr_cutoff = 0.05) -> filtered_g
 
 You can look at the distribution of enrichment score values, and levels of significance between the datasets
 
-```{r}
+### Distribution of NES values
+
+```{r fig.width=6, fig.height=5}
 gsea_results |> 
   ggplot(aes(x=NES, colour=Condition)) +
   geom_density() +
@@ -79,15 +81,19 @@ gsea_results |>
 
 Let's do the same thing after filtering
 
-```{r}
+```{r fig.width=6, fig.height=5}
 filtered_gsea_results |> 
   ggplot(aes(x=NES, colour=Condition)) +
   geom_density() +
   ggtitle("Distribution of filtered NES values between conditions")
 ```
+
+
+### Distribution of Directional PHRED values
+
 We can also plot PHRED scores where we convert the scores with a negative NES to give a negative PHRED
 
-```{r}
+```{r fig.width=6, fig.height=5}
 gsea_results |> 
   ggplot(aes(x=Directional_Phred, colour=Condition)) +
   geom_density() +
@@ -96,7 +102,7 @@ gsea_results |>
 
 Again, we can do the same thing with the filtered data.
 
-```{r}
+```{r fig.width=6, fig.height=5}
 filtered_gsea_results |> 
   ggplot(aes(x=Directional_Phred, colour=Condition)) +
   geom_density() +
@@ -113,6 +119,8 @@ Let's take a look at the comparison of the metrics between the two conditions in
 filtered_gsea_results |> 
   condition_gsea_scatterplot("Early","Late", metric="Directional_Phred")
 ```
+
+## NES Scatterplot
 
 ```{r fig.width=6, fig.height=6}
 filtered_gsea_results |> 
@@ -148,7 +156,7 @@ early_late_gsea_differences %>%
 
 ## Calculating the overlaps between terms
 
-So we have over 300 terms still which is too many to deal with.  Many of those terms will be highly overlapping in their gene content, so we can cluster them based on this to get a smaller subset of distinct subgroups.
+So we have over hundreds of terms still which is too many to deal with.  Many of those terms will be highly overlapping in their gene content, so we can cluster them based on this to get a smaller subset of distinct subgroups.
 
 ```{r}
 create_category_overlap_matrix(early_late_gsea_differences, max_categories = 400) -> early_late_category_overlap_matrix
