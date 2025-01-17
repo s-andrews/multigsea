@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     toc: true
     toc_depth: 4
-  
+
 vignette: >
   %\VignetteIndexEntry{multi_gsea}
   %\VignetteEngine{knitr::rmarkdown}

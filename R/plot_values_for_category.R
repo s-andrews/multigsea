@@ -29,15 +29,15 @@ plot_values_for_category <- function(gsea_result, fold_change_data, category_id,
       cols=starts_with("Gene"),
       names_to="Temp",
       values_to="Gene"
-    ) %>%
+    ) |>
     dplyr::filter(!is.na(Gene)) |>
-    distinct(Gene) |>
-    pull(Gene) -> genes_to_keep
+    dplyr::distinct(Gene) |>
+    dplyr::pull(Gene) -> genes_to_keep
 
-  example_data %>%
-    select(Genes,one_of(conditions_to_keep)) |>
-    filter(Genes %in% genes_to_keep) |>
-    pivot_longer(
+  fold_change_data |>
+    dplyr::select(Genes,one_of(conditions_to_keep)) |>
+    dplyr::filter(Genes %in% genes_to_keep) |>
+    tidyr::pivot_longer(
       cols=-Genes,
       names_to="Condition",
       values_to="Value"
@@ -53,7 +53,7 @@ plot_values_for_category <- function(gsea_result, fold_change_data, category_id,
   }
 
   plot_data |>
-    tidy_heatmap(
+    tidyheatmaps::tidy_heatmap(
       columns=Condition,
       rows=Genes,
       values=Value,
