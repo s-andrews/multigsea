@@ -18,7 +18,7 @@ plot_category_overlap_heatmap <- function(gene_list_overlaps, minoverlap=0) {
     dplyr::group_by(ID2) |>
     dplyr::filter(any(overlap>0)) |>
     dplyr::ungroup() |>
-    tidy_heatmap(
+    tidyheatmaps::tidy_heatmap(
       rows=ID1,
       columns=ID2,
       values=overlap,
