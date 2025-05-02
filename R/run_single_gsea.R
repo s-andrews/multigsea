@@ -19,6 +19,8 @@ run_single_gsea <- function(data,column, org, minGSSize, maxGSSize, ontology) {
 
   sort(gsea_values, decreasing = TRUE) -> gsea_values
 
+  gsea_values[!is.na(gsea_values)] -> gsea_values
+
   clusterProfiler::gseGO(
     geneList = gsea_values,
     ont = ontology,
